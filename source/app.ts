@@ -1,11 +1,11 @@
-import { Server } from "http";
+import type { Server } from "node:http";
 import {
-  Configuration,
+  type Configuration,
   readAppConfiguration,
 } from "./models/ConfigurationModel.js";
 import createApp from "./server.js";
 
-const configurationFile = "";
+const configurationFile = "config.json";
 
 const configuration: Configuration = readAppConfiguration(configurationFile);
 

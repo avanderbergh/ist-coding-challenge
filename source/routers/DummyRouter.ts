@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { z } from "zod";
 import DummyController from "../controllers/DummyController.js"; // TO_CHANGE: naming
-import { Configuration } from "../models/ConfigurationModel.js";
+import type { Configuration } from "../models/ConfigurationModel.js";
 
 let dummyController: DummyController; // TO_CHANGE: naming
 

@@ -1,4 +1,4 @@
-import { Configuration } from "../models/ConfigurationModel";
+import type { Configuration } from "../models/ConfigurationModel";
 
 export default class DummyController {
   configuration: Configuration;

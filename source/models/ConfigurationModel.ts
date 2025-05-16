@@ -1,5 +1,5 @@
-import { Server } from "http";
-import fs from "fs";
+import type { Server } from "node:http";
+import fs from "node:fs";
 
 type ExpressServerOptions = Pick<
   Server,
