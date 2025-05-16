@@ -1,0 +1,14 @@
+{
+  "verbose": true,
+  "testEnvironment": "node",
+  "transformIgnorePatterns": [],
+  "extensionsToTreatAsEsm": [".ts"],
+  "transform": {
+    "^.+\\.[tj]sx?$": ["ts-jest", { "useESM": true }]
+  },
+  "moduleNameMapper": {
+    "^(\\.\\.?\\/.+)\\.js$": "$1"
+  },
+  "modulePathIgnorePatterns": ["<rootDir>/build/"],
+  "collectCoverage": true
+}

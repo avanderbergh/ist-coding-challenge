@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "ES2022",
+    "target": "ES2022",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "strict": true,
+    "outDir": "./build",
+    "sourceMap": true,
+    "lib": ["ES2022"]
+  },
+  "include": ["./source/**/*.ts", "tests"]
+}
