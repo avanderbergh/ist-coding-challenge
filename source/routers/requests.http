@@ -1,0 +1,26 @@
+### Invalid vat number
+POST http://localhost:3000/
+Content-Type: application/json
+
+{
+  "countryCode": "DE",
+  "vat": "678678678"
+}
+
+### Valid vat number
+POST http://localhost:3000/
+Content-Type: application/json
+
+{
+  "countryCode": "DE",
+  "vat": "DE123456789"
+}
+
+### Invalid country code
+POST http://localhost:3000/
+Content-Type: application/json
+
+{
+  "countryCode": "ZZ",
+  "vat": "DE123456789"
+}
