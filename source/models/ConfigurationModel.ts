@@ -11,14 +11,16 @@ type ExpressServerOptions = Pick<
   | "requestTimeout"
 >;
 
-export interface Configuration {
+export interface ExpressServerConfiguration {
   // TO_CHANGE: add your needed configuration parameters
   readonly port: number;
   readonly expressServerOptions: ExpressServerOptions;
 }
 
-export const readAppConfiguration = (file: string): Configuration => {
-  const configuration: Configuration = JSON.parse(
+export const readAppConfiguration = (
+  file: string
+): ExpressServerConfiguration => {
+  const configuration: ExpressServerConfiguration = JSON.parse(
     fs.readFileSync(file, "utf-8")
   );
 

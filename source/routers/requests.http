@@ -1,4 +1,10 @@
-### Invalid vat number
+### Empty body
+POST http://localhost:3000/
+Content-Type: application/json
+
+{}
+
+### Invalid EU vat number
 POST http://localhost:3000/
 Content-Type: application/json
 
@@ -7,13 +13,31 @@ Content-Type: application/json
   "vat": "678678678"
 }
 
-### Valid vat number
+### Valid EU vat number
 POST http://localhost:3000/
 Content-Type: application/json
 
 {
   "countryCode": "DE",
-  "vat": "DE123456789"
+  "vat": "DE129274202"
+}
+
+### Invalid Swiss VAT number
+POST http://localhost:3000/
+Content-Type: application/json
+
+{
+  "countryCode": "CH",
+  "vat": "CHE-123456789"
+}
+
+### Valid Swiss VAT number
+POST http://localhost:3000/
+Content-Type: application/json
+
+{
+  "countryCode": "CH",
+  "vat": "CHE-116.281.710"
 }
 
 ### Invalid country code
@@ -24,3 +48,30 @@ Content-Type: application/json
   "countryCode": "ZZ",
   "vat": "DE123456789"
 }
+
+### Test with VIES API
+POST https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number
+Content-Type: application/json
+
+{
+  "countryCode": "ES",
+  "vatNumber": "A15075062"
+}
+
+### Check Member States
+GET https://ec.europa.eu/taxation_customs/vies/rest-api/check-status
+
+### Check Swiss VAT number
+POST https://www.uid-wse.admin.ch/V5.0/PublicServices.svc
+Content-Type: text/xml; charset=utf-8
+SOAPAction: "http://www.uid.admin.ch/xmlns/uid-wse/IPublicServices/ValidateVatNumber"
+
+<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
+               xmlns:uid="http://www.uid.admin.ch/xmlns/uid-wse">
+  <soap:Body>
+    <uid:ValidateVatNumber>
+      <uid:vatNumber>CHE-116.281.710</uid:vatNumber>
+    </uid:ValidateVatNumber>
+  </soap:Body>
+</soap:Envelope>

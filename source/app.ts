@@ -1,20 +1,26 @@
 import type { Server } from "node:http";
 import {
-  type Configuration,
   readAppConfiguration,
-} from "./models/ConfigurationModel.js";
-import createApp from "./server.js";
+  type ExpressServerConfiguration,
+} from "./models/ConfigurationModel";
+import createApp from "./server";
+import { EUVatValidationService } from "./services/EUVatValidationService";
+import { SwissVatValidationService } from "./services/SwissVatValidationService";
 
 const configurationFile = "config.json";
 
-const configuration: Configuration = readAppConfiguration(configurationFile);
+const configuration: ExpressServerConfiguration =
+  readAppConfiguration(configurationFile);
 
-const server: Server = createApp(configuration).app.listen(
-  configuration.port,
-  () => {
-    console.log({ description: "START" });
-  }
-);
+const euVatValidationService = new EUVatValidationService();
+const chVatValidationService = new SwissVatValidationService();
+
+const server: Server = createApp({
+  euVatValidationService,
+  chVatValidationService,
+}).app.listen(configuration.port, () => {
+  console.log({ description: "START" });
+});
 
 server.keepAliveTimeout = configuration.expressServerOptions.keepAliveTimeout;
 server.maxHeadersCount = configuration.expressServerOptions.maxHeadersCount;

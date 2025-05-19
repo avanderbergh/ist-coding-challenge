@@ -1,4 +1,4 @@
-export const validationData: { countryCode: string; regex: string }[] = [
+export const validationData = [
   {
     countryCode: "AT",
     regex: "^ATU[0-9]{8}$",
@@ -115,4 +115,4 @@ export const validationData: { countryCode: string; regex: string }[] = [
     countryCode: "SK",
     regex: "^SK[0-9]{10}$",
   },
-];
+] as const;

@@ -1,15 +1,17 @@
-import type { Configuration } from "../models/ConfigurationModel";
 import type { VatValidationType } from "../schemas/VatValidationSchema";
+import type { VatValidationService } from "../services/UnifiedVatValidationService";
+import type { Request, Response } from "express";
 
 export default class VatValidationController {
-  configuration: Configuration;
+  constructor(private readonly service: VatValidationService) {}
 
-  constructor(configuration: Configuration) {
-    this.configuration = configuration;
-  }
+  async validateVatNumber(req: Request, res: Response) {
+    const { countryCode, vat }: VatValidationType = req.body;
+    const validated = await this.service.validate(countryCode, vat);
 
-  async validateVatNumber(dummyValue: VatValidationType) {
-    this.validateVatNumber.toString();
-    return {};
+    res.status(200).json({
+      validated,
+      details: `VAT number is ${validated ? "valid" : "invalid"} for the given country code.`,
+    });
   }
 }
