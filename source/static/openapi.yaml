@@ -1,0 +1,96 @@
+openapi: "3.1.0"
+info:
+  title: "VAT Validation API"
+  version: "1.0.0"
+  description: "API to validate VAT numbers for EU and Swiss countries"
+servers:
+  - url: "http://localhost:3000"
+    description: Local development server
+paths:
+  /:
+    post:
+      summary: Validate VAT number
+      operationId: validateVatNumber
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VatValidationRequest"
+      responses:
+        "200":
+          description: Successful validation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VatValidationResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ValidationError:
+                  summary: Example of bad request validation error
+                  value:
+                    code: 400
+                    message: "Invalid VAT number for country DE"
+        "501":
+          description: Unsupported country code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                UnsupportedCountryCode:
+                  summary: Example of unsupported country code error
+                  value:
+                    code: 501
+                    message: "Unsupported country code CH"
+components:
+  schemas:
+    VatValidationRequest:
+      type: object
+      required:
+        - countryCode
+        - vat
+      properties:
+        countryCode:
+          type: string
+          description: ISO 3166-1 alpha-2 country code
+          minLength: 2
+          maxLength: 2
+        vat:
+          type: string
+          description: VAT number to validate
+          minLength: 3
+      examples:
+        - countryCode: "DE"
+          vat: "DE123456789"
+    VatValidationResponse:
+      type: object
+      properties:
+        validated:
+          type: boolean
+          description: Indicates if the VAT number is valid
+        details:
+          type: string
+          description: Human-readable validation result message
+      examples:
+        - validated: true
+          details: "VAT number is valid for the given country code."
+        - validated: false
+          details: "VAT number is invalid for the given country code."
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          description: HTTP status or application-specific error code
+        message:
+          type: string
+          description: Error message
