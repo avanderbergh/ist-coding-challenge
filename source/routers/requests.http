@@ -13,6 +13,15 @@ Content-Type: application/json
   "vat": "DE678678678"
 }
 
+### Invalid EU vat number
+POST http://localhost:3000/
+Content-Type: application/json
+
+{
+  "countryCode": "AT",
+  "vat": "ATU63611700"
+}
+
 ### Valid EU vat number
 POST http://localhost:3000/
 Content-Type: application/json

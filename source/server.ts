@@ -26,7 +26,6 @@ const GlobalErrorHandler = (
   res: Response,
   _next: NextFunction
 ) => {
-  console.error(err);
   const code = 500;
   res.status(code).json({
     code,

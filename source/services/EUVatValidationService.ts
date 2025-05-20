@@ -1,5 +1,5 @@
-import type { VatValidationService } from "./UnifiedVatValidationService";
 import { z } from "zod";
+import type { VatValidationService } from "./UnifiedVatValidationService";
 
 const CommonErrorSchema = z.object({
   actionSucceed: z.literal(false),
@@ -21,11 +21,12 @@ export class EUVatValidationService implements VatValidationService {
 
   async validate(countryCode: string, vat: string) {
     const maxRetries = 5;
-    const baseDelay = 200;
+    const baseDelay = 1000;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       if (attempt > 0) {
-        const delayMs = baseDelay * 2 ** (attempt - 1);
+        const delayMs =
+          baseDelay * 2 ** (attempt - 1) + Math.random() * baseDelay;
         await new Promise((res) => setTimeout(res, delayMs));
       }
 
@@ -34,33 +35,49 @@ export class EUVatValidationService implements VatValidationService {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ countryCode, vatNumber: vat.slice(2) }),
       });
+
       if (!response.ok) {
         console.error(
-          `Failed to validate VAT number: ${response.status} ${response.statusText}`
+          `Error while calling External EU VAT API: HTTP ${response.status} ${response.statusText}`
         );
-        throw new Error("Failed to validate VAT number");
+        throw new Error(
+          "Error while calling External EU VAT API: HTTP request failed"
+        );
       }
+
       const json = await response.json();
       const parseResult = VatApiResponseSchema.safeParse(json);
+
       if (!parseResult.success) {
-        console.error("Invalid VIES API response", parseResult.error);
-        throw new Error("Failed to validate VAT number");
+        throw new Error(
+          "Error while calling External EU VAT API: Invalid response schema"
+        );
       }
+
       const parsed = parseResult.data;
       if ("valid" in parsed) {
         return parsed.valid;
       }
 
       const errCode = parsed.errorWrappers[0]?.error;
-      console.error("VIES API error", parsed.errorWrappers);
+
+      if (errCode === "MS_UNAVAILABLE") {
+        throw new Error(
+          `VAT validation for ${countryCode} is currently unavailable`
+        );
+      }
 
       if (errCode === "MS_MAX_CONCURRENT_REQ" && attempt < maxRetries) {
         continue;
       }
 
-      throw new Error(errCode ?? "VAT API error");
+      throw new Error(
+        `Error while calling External EU VAT API: ${errCode ?? "Unknown error"}`
+      );
     }
 
-    throw new Error("VAT validation failed after retries");
+    throw new Error(
+      `Error while calling External EU VAT API: validation failed after ${maxRetries} attempts`
+    );
   }
 }
