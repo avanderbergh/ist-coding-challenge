@@ -1,21 +1,18 @@
 import type { Express } from "express";
-import createApp from "../source/server";
-import type { VatValidationService } from "../source/services/UnifiedVatValidationService";
-import { configuration } from "./shared-data";
+import createApp from "../source/server.js";
+import type { VatValidator } from "../source/services/VatValidationCoordinator.js";
+import { configuration } from "./shared-data.js";
 
 describe("Server Starts", () => {
   let app: Express;
-  let euVatValidationService: jest.Mocked<VatValidationService>;
-  let chVatValidationService: jest.Mocked<VatValidationService>;
+  let eu: jest.Mocked<VatValidator>;
+  let ch: jest.Mocked<VatValidator>;
 
   beforeEach(() => {
-    euVatValidationService = { validate: jest.fn() };
-    chVatValidationService = { validate: jest.fn() };
+    eu = { validate: jest.fn() };
+    ch = { validate: jest.fn() };
 
-    app = createApp({
-      euVatValidationService,
-      chVatValidationService,
-    }).app;
+    app = createApp({ eu, ch }).app;
   });
 
   it("creates a server", async () => {

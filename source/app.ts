@@ -1,26 +1,29 @@
 import type { Server } from "node:http";
 import {
-  readAppConfiguration,
   type ExpressServerConfiguration,
-} from "./models/ConfigurationModel";
-import createApp from "./server";
-import { EUVatValidationService } from "./services/EUVatValidationService";
-import { SwissVatValidationService } from "./services/SwissVatValidationService";
+  readAppConfiguration,
+} from "./models/ConfigurationModel.js";
+import createApp from "./server.js";
+import { CHVatValidator } from "./services/CHVatValidator.js";
+import { EUVatValidator } from "./services/EUVatValidator.js";
+import type { RegionValidators } from "./services/VatValidationCoordinator.js";
 
 const configurationFile = "config.json";
 
 const configuration: ExpressServerConfiguration =
   readAppConfiguration(configurationFile);
 
-const euVatValidationService = new EUVatValidationService();
-const chVatValidationService = new SwissVatValidationService();
+const validators: RegionValidators = {
+  ch: new CHVatValidator(),
+  eu: new EUVatValidator(),
+};
 
-const server: Server = createApp({
-  euVatValidationService,
-  chVatValidationService,
-}).app.listen(configuration.port, () => {
-  console.log({ description: "START" });
-});
+const server: Server = createApp(validators).app.listen(
+  configuration.port,
+  () => {
+    console.log({ description: "START" });
+  }
+);
 
 server.keepAliveTimeout = configuration.expressServerOptions.keepAliveTimeout;
 server.maxHeadersCount = configuration.expressServerOptions.maxHeadersCount;

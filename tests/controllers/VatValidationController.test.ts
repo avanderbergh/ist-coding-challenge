@@ -1,40 +1,33 @@
 import type { Express } from "express";
 import request from "supertest";
-import createApp from "../../source/server";
-import type { VatValidationService } from "../../source/services/UnifiedVatValidationService";
-import { configuration } from "../shared-data";
+import createApp from "../../source/server.js";
+import type { VatValidator } from "../../source/services/VatValidationCoordinator.js";
 
 describe("Vat Validation Controller", () => {
   let app: Express;
-  let euVatValidationService: jest.Mocked<VatValidationService>;
-  let chVatValidationService: jest.Mocked<VatValidationService>;
+  let eu: jest.Mocked<VatValidator>;
+  let ch: jest.Mocked<VatValidator>;
 
   beforeEach(() => {
-    euVatValidationService = { validate: jest.fn() };
-    chVatValidationService = { validate: jest.fn() };
+    eu = { validate: jest.fn() };
+    ch = { validate: jest.fn() };
 
-    app = createApp({
-      euVatValidationService,
-      chVatValidationService,
-    }).app;
+    app = createApp({ eu, ch }).app;
   });
 
   it("returns 200 and valid message for valid EU VAT number", async () => {
     const countryCode = "DE";
     const vat = "DE129274202";
 
-    euVatValidationService.validate.mockResolvedValueOnce(true);
+    eu.validate.mockResolvedValueOnce(true);
 
     const { body } = await request(app)
       .post("/")
       .send({ countryCode, vat })
       .expect(200);
 
-    expect(euVatValidationService.validate).toHaveBeenCalledWith(
-      countryCode,
-      vat
-    );
-    expect(chVatValidationService.validate).not.toHaveBeenCalled();
+    expect(eu.validate).toHaveBeenCalledWith(countryCode, vat);
+    expect(ch.validate).not.toHaveBeenCalled();
 
     expect(body.validated).toBe(true);
     expect(body.details).toBe(
@@ -45,18 +38,15 @@ describe("Vat Validation Controller", () => {
   it("returns 200 and invalid message for an invalid EU VAT number", async () => {
     const countryCode = "DE";
     const vat = "DE129274202";
-    euVatValidationService.validate.mockResolvedValueOnce(false);
+    eu.validate.mockResolvedValueOnce(false);
 
     const { body } = await request(app)
       .post("/")
       .send({ countryCode, vat })
       .expect(200);
 
-    expect(euVatValidationService.validate).toHaveBeenCalledWith(
-      countryCode,
-      vat
-    );
-    expect(chVatValidationService.validate).not.toHaveBeenCalled();
+    expect(eu.validate).toHaveBeenCalledWith(countryCode, vat);
+    expect(ch.validate).not.toHaveBeenCalled();
 
     expect(body.validated).toBe(false);
     expect(body.details).toBe(

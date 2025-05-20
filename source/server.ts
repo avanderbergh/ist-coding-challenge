@@ -1,31 +1,19 @@
 import express, {
   json,
+  type ErrorRequestHandler,
   type Express,
   type Router,
-  type Request,
-  type Response,
-  type NextFunction,
 } from "express";
 import helmet from "helmet";
-import responseTime from "response-time";
 import path from "node:path";
-import VatValidationRouter from "./routers/VatValidationRouter";
+import responseTime from "response-time";
+import VatValidationRouter from "./routers/VatValidationRouter.js";
 import {
-  UnifiedVatValidationService,
-  type VatValidationService,
-} from "./services/UnifiedVatValidationService";
+  VatValidationCoordinator,
+  type RegionValidators,
+} from "./services/VatValidationCoordinator.js";
 
-export interface AppServices {
-  euVatValidationService: VatValidationService;
-  chVatValidationService: VatValidationService;
-}
-
-const GlobalErrorHandler = (
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-) => {
+const GlobalErrorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   const code = 500;
   res.status(code).json({
     code,
@@ -33,7 +21,7 @@ const GlobalErrorHandler = (
   });
 };
 
-export default function createApp(services: AppServices): {
+export default function createApp(validators: RegionValidators): {
   app: Express;
   router: Router;
 } {
@@ -45,15 +33,10 @@ export default function createApp(services: AppServices): {
   app.use(responseTime({ suffix: true }));
 
   app.get("/api-spec", (_req, res) => {
-    res.sendFile(
-      path.resolve(process.cwd(), "source", "static", "openapi.yaml")
-    );
+    res.sendFile(path.resolve(process.cwd(), "docs", "openapi.yaml"));
   });
 
-  const vatValidationService = new UnifiedVatValidationService(
-    services.euVatValidationService,
-    services.chVatValidationService
-  );
+  const vatValidationService = new VatValidationCoordinator(validators);
 
   const router = VatValidationRouter(vatValidationService);
   app.use("/", router);

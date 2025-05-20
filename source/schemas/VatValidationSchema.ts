@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { validationData } from "./ValidationData";
+import { validationData } from "./ValidationData.js";
 
 export const vatRegexMap: Record<string, RegExp> = Object.fromEntries(
   validationData.map(({ countryCode, regex }) => [

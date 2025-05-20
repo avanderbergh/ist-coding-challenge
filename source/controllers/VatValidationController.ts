@@ -1,9 +1,9 @@
-import type { VatValidationType } from "../schemas/VatValidationSchema";
-import type { VatValidationService } from "../services/UnifiedVatValidationService";
+import type { VatValidationType } from "../schemas/VatValidationSchema.js";
+import type { VatValidator } from "../services/VatValidationCoordinator.js";
 import type { Request, Response } from "express";
 
 export default class VatValidationController {
-  constructor(private readonly service: VatValidationService) {}
+  constructor(private readonly service: VatValidator) {}
 
   async validateVatNumber(req: Request, res: Response) {
     const { countryCode, vat }: VatValidationType = req.body;

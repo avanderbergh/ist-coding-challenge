@@ -1,11 +1,11 @@
 import { Router } from "express";
-import VatValidationController from "../controllers/VatValidationController";
-import { ValidationMiddleware } from "../middleware/ValidationMiddleware";
-import type { VatValidationService } from "../services/UnifiedVatValidationService";
+import VatValidationController from "../controllers/VatValidationController.js";
+import { ValidationMiddleware } from "../middleware/ValidationMiddleware.js";
+import type { VatValidator } from "../services/VatValidationCoordinator.js";
 
 let vatValidationController: VatValidationController;
 
-const router = (service: VatValidationService): Router => {
+const router = (service: VatValidator): Router => {
   const expressRouter: Router = Router({
     caseSensitive: true,
     strict: true,

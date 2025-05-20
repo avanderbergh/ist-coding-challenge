@@ -1,22 +1,19 @@
 import type { Express } from "express";
 import request from "supertest";
-import createApp from "../../source/server";
-import type { VatValidationService } from "../../source/services/UnifiedVatValidationService";
+import createApp from "../../source/server.js";
+import type { VatValidator } from "../../source/services/VatValidationCoordinator.js";
 
 describe("Validation Middleware", () => {
   let app: Express;
 
-  let euVatValidationService: jest.Mocked<VatValidationService>;
-  let chVatValidationService: jest.Mocked<VatValidationService>;
+  let eu: jest.Mocked<VatValidator>;
+  let ch: jest.Mocked<VatValidator>;
 
   beforeEach(() => {
-    euVatValidationService = { validate: jest.fn() };
-    chVatValidationService = { validate: jest.fn() };
+    eu = { validate: jest.fn() };
+    ch = { validate: jest.fn() };
 
-    app = createApp({
-      euVatValidationService,
-      chVatValidationService,
-    }).app;
+    app = createApp({ eu, ch }).app;
   });
 
   it("returns 400 error and message for invalid payload", async () => {
@@ -25,8 +22,8 @@ describe("Validation Middleware", () => {
     expect(body.code).toBe(400);
     expect(body.message).toBe("'countryCode' is required, 'vat' is required");
 
-    expect(euVatValidationService.validate).not.toHaveBeenCalled();
-    expect(chVatValidationService.validate).not.toHaveBeenCalled();
+    expect(eu.validate).not.toHaveBeenCalled();
+    expect(ch.validate).not.toHaveBeenCalled();
   });
 
   it("returns 501 error and message for unsupported country code", async () => {
@@ -38,8 +35,8 @@ describe("Validation Middleware", () => {
     expect(body.code).toBe(501);
     expect(body.message).toBe("Unsupported country code XX");
 
-    expect(euVatValidationService.validate).not.toHaveBeenCalled();
-    expect(chVatValidationService.validate).not.toHaveBeenCalled();
+    expect(eu.validate).not.toHaveBeenCalled();
+    expect(ch.validate).not.toHaveBeenCalled();
   });
 
   it("returns 400 error and message for invalid VAT number", async () => {
@@ -51,7 +48,7 @@ describe("Validation Middleware", () => {
     expect(body.code).toBe(400);
     expect(body.message).toBe("Invalid VAT number for country DE");
 
-    expect(euVatValidationService.validate).not.toHaveBeenCalled();
-    expect(chVatValidationService.validate).not.toHaveBeenCalled();
+    expect(eu.validate).not.toHaveBeenCalled();
+    expect(ch.validate).not.toHaveBeenCalled();
   });
 });
