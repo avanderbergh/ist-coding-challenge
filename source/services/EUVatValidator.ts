@@ -26,7 +26,8 @@ export class EUVatValidator extends RetryableVatValidator {
     countryCode: string,
     vat: string
   ): Promise<boolean> {
-    const response = await fetch(this.url, {
+    // Add timeout check and throw an error if it exceeds 5 seconds
+    const response = await this.fetchWithTimeout(this.url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ countryCode, vatNumber: vat.slice(2) }),

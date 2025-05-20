@@ -10,16 +10,7 @@ Content-Type: application/json
 
 {
   "countryCode": "DE",
-  "vat": "DE678678678"
-}
-
-### Invalid EU vat number
-POST http://localhost:3000/
-Content-Type: application/json
-
-{
-  "countryCode": "AT",
-  "vat": "ATU63611700"
+  "vat": "DE111111"
 }
 
 ### Valid EU vat number

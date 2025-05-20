@@ -27,6 +27,24 @@ export abstract class RetryableVatValidator implements VatValidator {
     vat: string
   ): Promise<boolean>;
 
+  async fetchWithTimeout(
+    input: string | URL | Request,
+    init?: RequestInit,
+    timeout = 5000
+  ): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    try {
+      const response = await fetch(input, {
+        ...init,
+        signal: controller.signal,
+      });
+      return response;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
   async validate(countryCode: string, vat: string): Promise<boolean> {
     for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
       console.log(`Attempt ${attempt + 1} for ${countryCode} ${vat}`);

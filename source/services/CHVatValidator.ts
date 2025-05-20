@@ -35,7 +35,7 @@ export class CHVatValidator extends RetryableVatValidator {
       );
     }
 
-    const response = await fetch(this.url, {
+    const response = await this.fetchWithTimeout(this.url, {
       method: "POST",
       headers: {
         "Content-Type": "text/xml; charset=utf-8",
