@@ -10,7 +10,7 @@ Content-Type: application/json
 
 {
   "countryCode": "DE",
-  "vat": "678678678"
+  "vat": "DE678678678"
 }
 
 ### Valid EU vat number
