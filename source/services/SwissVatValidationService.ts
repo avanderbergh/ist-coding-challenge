@@ -28,8 +28,6 @@ export class SwissVatValidationService implements VatValidationService {
 
     const body = this.generateSoapEnvelope(vat);
 
-    console.log("SOAP Envelope:", body);
-
     const response = await fetch(this.url, {
       method: "POST",
       headers: {
@@ -40,10 +38,32 @@ export class SwissVatValidationService implements VatValidationService {
       body: this.generateSoapEnvelope(vat),
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to validate VAT number");
-    }
     const text = await response.text();
+
+    const faultMatch = text.match(
+      /<(?:\w+:)?Fault[^>]*>[\s\S]*?<(?:\w+:)?faultstring[^>]*>([\s\S]*?)<\/(?:\w+:)?faultstring>/i
+    );
+
+    if (faultMatch) {
+      const faultMessage = faultMatch[1].trim();
+
+      const detailMatch = text.match(
+        /<(?:\w+:)?errorDetail[^>]*>([\s\S]*?)<\/(?:\w+:)?errorDetail>/i
+      );
+      const detailMessage = detailMatch ? detailMatch[1].trim() : null;
+
+      const fullMessage = detailMessage
+        ? `Error while calling the Swiss VAT Validation Service: ${faultMessage} - ${detailMessage}`
+        : `Error while calling the Swiss VAT Validation Service: ${faultMessage}`;
+
+      throw new Error(fullMessage);
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `Error while calling the Swiss VAT Validation Service: HTTP ${response.status}`
+      );
+    }
 
     const result = text.match(
       /<ValidateVatNumberResult>(true|false)<\/ValidateVatNumberResult>/
