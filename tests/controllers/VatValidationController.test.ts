@@ -53,4 +53,39 @@ describe("Vat Validation Controller", () => {
       "VAT number is invalid for the given country code."
     );
   });
+
+  it("returns 500 and error message when service throws an error with a message", async () => {
+    const countryCode = "DE";
+    const vat = "DE129274202";
+    const errorMessage = "Service unavailable";
+    eu.validate.mockRejectedValueOnce(new Error(errorMessage));
+
+    const { body } = await request(app)
+      .post("/")
+      .send({ countryCode, vat })
+      .expect(500);
+
+    expect(eu.validate).toHaveBeenCalledWith(countryCode, vat);
+    expect(ch.validate).not.toHaveBeenCalled();
+
+    expect(body.code).toBe(500);
+    expect(body.message).toBe(errorMessage);
+  });
+
+  it("returns 500 and default error message when service throws an error without a message", async () => {
+    const countryCode = "DE";
+    const vat = "DE129274202";
+    eu.validate.mockRejectedValueOnce(new Error());
+
+    const { body } = await request(app)
+      .post("/")
+      .send({ countryCode, vat })
+      .expect(500);
+
+    expect(eu.validate).toHaveBeenCalledWith(countryCode, vat);
+    expect(ch.validate).not.toHaveBeenCalled();
+
+    expect(body.code).toBe(500);
+    expect(body.message).toBe("Internal Server Error");
+  });
 });

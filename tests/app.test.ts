@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import request from "supertest";
 import createApp from "../source/server.js";
 import type { VatValidator } from "../source/services/VatValidationCoordinator.js";
 import { configuration } from "./shared-data.js";
@@ -21,5 +22,11 @@ describe("Server Starts", () => {
     expect(server).toBeDefined();
 
     server.close();
+  });
+
+  it("serves the OpenAPI spec at /api-spec", async () => {
+    const response = await request(app).get("/api-spec");
+    expect(response.status).toBe(200);
+    expect(response.type).toBe("text/yaml");
   });
 });

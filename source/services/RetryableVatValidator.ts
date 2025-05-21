@@ -33,64 +33,82 @@ export abstract class RetryableVatValidator implements VatValidator {
     timeout = 5000
   ): Promise<Response> {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const timeoutPromise = new Promise<never>((_resolve, reject) => {
+      timeoutId = setTimeout(() => {
+        controller.abort();
+        reject(
+          new VatValidationError(`Request timed out after ${timeout} ms`, {
+            isRetryable: true,
+          })
+        );
+      }, timeout);
+    });
     try {
-      const response = await fetch(input, {
-        ...init,
-        signal: controller.signal,
-      });
+      const response = await Promise.race([
+        fetch(input, { ...init, signal: controller.signal }),
+        timeoutPromise,
+      ]);
       return response;
     } finally {
-      clearTimeout(timeoutId);
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+      }
     }
   }
 
   async validate(countryCode: string, vat: string): Promise<boolean> {
-    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
-      console.log(`Attempt ${attempt + 1} for ${countryCode} ${vat}`);
-      if (attempt > 0) {
-        const delay =
-          this.baseDelay * 2 ** (attempt - 1) + Math.random() * this.baseDelay;
-        await new Promise((res) => setTimeout(res, delay));
-      }
-
+    let attempt = 0;
+    do {
       try {
         return await this.doValidate(countryCode, vat);
       } catch (error: unknown) {
-        const isValidationError = error instanceof VatValidationError;
-        const responseStatus = isValidationError
-          ? error.responseStatus
-          : undefined;
-        const retryAfterHeader = isValidationError
-          ? error.retryAfterHeader
-          : undefined;
-        const shouldRetryStatus =
-          responseStatus === 429 ||
-          (typeof responseStatus === "number" &&
-            responseStatus >= 500 &&
-            responseStatus < 600);
-        const hasRetryAfter = typeof retryAfterHeader === "string";
-        const isNetworkError = error instanceof TypeError;
-        const isRetryable = isValidationError && error.isRetryable;
+        let shouldRetry = false;
+        let calculatedDelay = this.baseDelay * 2 ** attempt;
 
-        if (
-          (shouldRetryStatus || isNetworkError || isRetryable) &&
-          attempt < this.maxRetries
-        ) {
-          if (hasRetryAfter) {
-            const retryAfter = Number.parseInt(retryAfterHeader as string, 10);
-            if (!Number.isNaN(retryAfter)) {
-              await new Promise((res) => setTimeout(res, retryAfter * 1000));
-              continue;
+        if (error instanceof VatValidationError) {
+          const {
+            responseStatus,
+            retryAfterHeader,
+            isRetryable: isErrorMarkedRetryable,
+          } = error;
+
+          const shouldRetryBasedOnStatus =
+            responseStatus === 429 ||
+            (typeof responseStatus === "number" &&
+              responseStatus >= 500 &&
+              responseStatus < 600);
+
+          if (shouldRetryBasedOnStatus || isErrorMarkedRetryable) {
+            shouldRetry = true;
+            if (typeof retryAfterHeader === "string") {
+              const retryAfter = Number.parseInt(retryAfterHeader, 10);
+              if (!Number.isNaN(retryAfter)) {
+                calculatedDelay = retryAfter * 1000;
+              }
             }
           }
-          continue;
+        } else if (error instanceof TypeError) {
+          shouldRetry = true;
         }
 
-        throw error;
+        if (attempt < this.maxRetries && shouldRetry) {
+          if (calculatedDelay > 0) {
+            const jitter = Math.floor(Math.random() * 10) + 1;
+            calculatedDelay += jitter;
+          }
+          await new Promise((res) => setTimeout(res, calculatedDelay));
+        } else {
+          throw error;
+        }
       }
-    }
+      attempt++;
+    } while (attempt <= this.maxRetries);
 
-    throw new Error(`Validation failed after ${this.maxRetries} attempts`);
+    /* istanbul ignore next */
+    throw new Error(
+      "Internal Error: Unreachable code in RetryableVatValidator.validate was reached"
+    );
   }
 }

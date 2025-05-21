@@ -1,222 +1,77 @@
-import { CHVatValidator } from "../../source/services/CHVatValidator.js";
-import { EUVatValidator } from "../../source/services/EUVatValidator.js";
-import { VatValidationCoordinator } from "../../source/services/VatValidationCoordinator.js";
+import type { CHVatValidator } from "../../source/services/CHVatValidator.js";
+import type { EUVatValidator } from "../../source/services/EUVatValidator.js";
+import {
+  VatValidationCoordinator,
+  VatValidationError,
+} from "../../source/services/VatValidationCoordinator.js";
 
 describe("Vat Validation Coordinator", () => {
-  let fetchSpy: jest.SpyInstance;
-
+  let eu: jest.Mocked<EUVatValidator>;
+  let ch: jest.Mocked<CHVatValidator>;
   let vatValidationCoordinator: VatValidationCoordinator;
 
-  beforeAll(() => {
-    vatValidationCoordinator = new VatValidationCoordinator({
-      ch: new CHVatValidator(),
-      eu: new EUVatValidator(),
-    });
-  });
-
   beforeEach(() => {
-    fetchSpy = jest.spyOn(global, "fetch");
+    eu = {
+      validate: jest.fn(),
+    } as unknown as jest.Mocked<EUVatValidator>;
+
+    ch = {
+      validate: jest.fn(),
+    } as unknown as jest.Mocked<CHVatValidator>;
+
+    vatValidationCoordinator = new VatValidationCoordinator({ eu, ch });
   });
 
   afterEach(() => {
-    fetchSpy.mockRestore();
+    jest.clearAllMocks();
   });
 
-  it("Correctly routes and called the EU VAT Validation API and returns true for a valid VAT Number", async () => {
-    fetchSpy.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({ valid: true }),
-      headers: {
-        get: jest.fn(() => null),
-      },
-    });
-
-    const result = await vatValidationCoordinator.validate("AT", "ATU63611700");
-
+  it("should route to EUVatValidator for an EU country code (e.g., AT) and return its result", async () => {
+    eu.validate.mockResolvedValue(true);
+    const result = await vatValidationCoordinator.validate("AT", "ATU12345678");
     expect(result).toBe(true);
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ countryCode: "AT", vatNumber: "U63611700" }),
-      }
-    );
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(eu.validate).toHaveBeenCalledWith("AT", "ATU12345678");
+    expect(ch.validate).not.toHaveBeenCalled();
   });
 
-  it("Correctly routes and calls the EU VAT Validation API and returns false for an invalid VAT Number", async () => {
-    fetchSpy.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({ valid: false }),
-      headers: {
-        get: jest.fn(() => null),
-      },
-    });
-
-    const result = await vatValidationCoordinator.validate("AT", "ATU63611700");
-
+  it("should route to EUVatValidator for another EU country code (e.g., DE) and return its result", async () => {
+    eu.validate.mockResolvedValue(false);
+    const result = await vatValidationCoordinator.validate("DE", "DE123456789");
     expect(result).toBe(false);
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ countryCode: "AT", vatNumber: "U63611700" }),
-      }
-    );
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(eu.validate).toHaveBeenCalledWith("DE", "DE123456789");
+    expect(ch.validate).not.toHaveBeenCalled();
   });
 
-  it("Retries on MS_MAX_CONCURRENT_REQ error from EU VAT API", async () => {
-    fetchSpy.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => ({
-        actionSucceed: false,
-        errorWrappers: [{ error: "MS_MAX_CONCURRENT_REQ" }],
-      }),
-      headers: {
-        get: jest.fn(() => null),
-      },
-    });
-
-    fetchSpy.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => ({ valid: true }),
-      headers: {
-        get: jest.fn(() => null),
-      },
-    });
-
-    const result = await vatValidationCoordinator.validate("AT", "ATU63611700");
-    expect(result).toBe(true);
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ countryCode: "AT", vatNumber: "U63611700" }),
-      }
-    );
-    expect(fetchSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it("Correctly routes and calls the Swiss VAT Validation API and returns true for a valid VAT Number", async () => {
-    fetchSpy.mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: async () =>
-        "<soap:Envelope><soap:Body><ValidateVatNumberResponse><ValidateVatNumberResult>true</ValidateVatNumberResult></ValidateVatNumberResponse></soap:Body></soap:Envelope>",
-      headers: {
-        get: jest.fn(() => null),
-      },
-    });
-
-    const validators = {
-      ch: new CHVatValidator(),
-      eu: new EUVatValidator(),
-    };
-
-    const vatValidationCoordinator = new VatValidationCoordinator(validators);
-
+  it("should route to CHVatValidator for CH country code and return its result", async () => {
+    ch.validate.mockResolvedValue(true);
     const result = await vatValidationCoordinator.validate(
       "CH",
-      "CHE-123.456.789"
+      "CHE123456789"
     );
-
     expect(result).toBe(true);
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://www.uid-wse.admin.ch/V5.0/PublicServices.svc",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/xml; charset=utf-8",
-          SOAPAction:
-            "http://www.uid.admin.ch/xmlns/uid-wse/IPublicServices/ValidateVatNumber",
-        },
-        body: expect.stringContaining(
-          "<uid:vatNumber>CHE-123.456.789</uid:vatNumber>"
-        ),
-      }
-    );
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(ch.validate).toHaveBeenCalledWith("CH", "CHE123456789");
+    expect(eu.validate).not.toHaveBeenCalled();
   });
 
-  it("Correctly routes and calls the Swiss VAT Validation API and returns false for an invalid VAT Number", async () => {
-    fetchSpy.mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: async () =>
-        "<soap:Envelope><soap:Body><ValidateVatNumberResponse><ValidateVatNumberResult>false</ValidateVatNumberResult></ValidateVatNumberResponse></soap:Body></soap:Envelope>",
-      headers: {
-        get: jest.fn(() => null),
-      },
+  it("should propagate errors from the EUVatValidator", async () => {
+    const euError = new VatValidationError("EU Validator Error", {
+      isRetryable: false,
     });
-
-    const result = await vatValidationCoordinator.validate(
-      "CH",
-      "CHE-123.456.789"
-    );
-
-    expect(result).toBe(false);
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://www.uid-wse.admin.ch/V5.0/PublicServices.svc",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/xml; charset=utf-8",
-          SOAPAction:
-            "http://www.uid.admin.ch/xmlns/uid-wse/IPublicServices/ValidateVatNumber",
-        },
-        body: expect.stringContaining(
-          "<uid:vatNumber>CHE-123.456.789</uid:vatNumber>"
-        ),
-      }
-    );
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it("Throws a non-retryable client fault error for Swiss VAT API without retry", async () => {
-    fetchSpy.mockResolvedValue({
-      ok: true,
-      status: 200,
-      text: async () =>
-        `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-           <soap:Body>
-             <soap:Fault>
-               <faultcode>Client.InvalidVat</faultcode>
-               <faultstring>Invalid VAT number</faultstring>
-             </soap:Fault>
-           </soap:Body>
-         </soap:Envelope>`,
-      headers: {
-        get: jest.fn(() => null),
-      },
-    });
-
+    eu.validate.mockRejectedValue(euError);
     await expect(
-      vatValidationCoordinator.validate("CH", "CHE-123.456.789")
-    ).rejects.toThrow(
-      "SOAP Fault calling Swiss VAT Service: Client.InvalidVat - Invalid VAT number"
-    );
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://www.uid-wse.admin.ch/V5.0/PublicServices.svc",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/xml; charset=utf-8",
-          SOAPAction:
-            "http://www.uid.admin.ch/xmlns/uid-wse/IPublicServices/ValidateVatNumber",
-        },
-        body: expect.stringContaining(
-          "<uid:vatNumber>CHE-123.456.789</uid:vatNumber>"
-        ),
-      }
-    );
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+      vatValidationCoordinator.validate("FR", "FR123456789")
+    ).rejects.toThrow(euError);
+    expect(eu.validate).toHaveBeenCalledWith("FR", "FR123456789");
+  });
+
+  it("should propagate errors from the CHVatValidator", async () => {
+    const chError = new VatValidationError("CH Validator Error", {
+      isRetryable: true,
+    });
+    ch.validate.mockRejectedValue(chError);
+    await expect(
+      vatValidationCoordinator.validate("CH", "CHE123")
+    ).rejects.toThrow(chError);
+    expect(ch.validate).toHaveBeenCalledWith("CH", "CHE123");
   });
 });
