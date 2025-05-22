@@ -9,10 +9,7 @@ describe.skip("Check real vat numbers for all countries", () => {
   let app: Express;
 
   beforeAll(() => {
-    app = createApp({
-      eu: new EUVatValidator(),
-      ch: new CHVatValidator(),
-    }).app;
+    app = createApp([new EUVatValidator(), new CHVatValidator()]).app;
 
     console.log("Server started");
   });

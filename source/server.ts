@@ -10,7 +10,7 @@ import responseTime from "response-time";
 import VatValidationRouter from "./routers/VatValidationRouter.js";
 import {
   VatValidationCoordinator,
-  type RegionValidators,
+  type VatValidator,
 } from "./services/VatValidationCoordinator.js";
 
 const GlobalErrorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
@@ -21,7 +21,7 @@ const GlobalErrorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   });
 };
 
-export default function createApp(validators: RegionValidators): {
+export default function createApp(validators: VatValidator[]): {
   app: Express;
   router: Router;
 } {

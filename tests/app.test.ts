@@ -10,10 +10,9 @@ describe("Server Starts", () => {
   let ch: jest.Mocked<VatValidator>;
 
   beforeEach(() => {
-    eu = { validate: jest.fn() };
-    ch = { validate: jest.fn() };
-
-    app = createApp({ eu, ch }).app;
+    eu = { validate: jest.fn(), supportedCountries: [] };
+    ch = { validate: jest.fn(), supportedCountries: [] };
+    app = createApp([eu, ch]).app;
   });
 
   it("creates a server", async () => {

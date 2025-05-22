@@ -15,20 +15,20 @@ Many applications need to verify the validity of company VAT numbers for complia
 ### Common Features
 
 - Request validation using Zod schemas (countryCode and VAT number formats) is performed by the [`ValidationMiddleware`](/source/middleware/ValidationMiddleware.ts). This middleware ensures that:
-    - The request body conforms to the expected schema.
-    - The `countryCode` is supported by checking against a predefined map of VAT number regular expressions (`vatRegexMap`). Unsupported country codes result in a 501 error, so the coordinator only receives valid and supported country codes.
-    - The VAT number format is valid for the given `countryCode` according to its regex pattern, returning a 400 error if not.
+  - The request body conforms to the expected schema.
+  - The `countryCode` is supported by checking against a predefined map of VAT number regular expressions (`vatRegexMap`). Unsupported country codes result in a 501 error, so the coordinator only receives valid and supported country codes.
+  - The VAT number format is valid for the given `countryCode` according to its regex pattern, returning a 400 error if not.
 - Orchestrates calls via the [`VatValidationCoordinator`](/source/services/VatValidationCoordinator.ts). This coordinator:
-    - Implements the `VatValidator` interface.
-    - Takes a `RegionValidators` object in its constructor, mapping 'ch' and 'eu' to their respective validator instances.
-    - Routes validation requests. It uses a simple `if (countryCode === "CH")` check to direct requests to the Swiss validator. For all other country codes, it safely falls back to the EU validator. This is robust because the preceding `ValidationMiddleware` guarantees that any non-CH country code reaching the coordinator is a supported one (implicitly an EU country in the current setup).
-    - This design allows for straightforward extension; additional country-specific validators (e.g., for the UK post-Brexit) could be added with similar explicit checks, while the EU validator serves as a general fallback for other supported EU nations.
+  - Implements the `VatValidator` interface.
+  - Accepts an _array_ of `VatValidator` implementations in its constructor, each exposing a `supportedCountries: string[]` list.
+  - Routes validation requests by finding the first validator whose `supportedCountries` includes the given `countryCode`.
+  - This design is fully data-driven: adding a new region requires only providing a validator with its supported ISO codes.
 - All specific validators (EU and Swiss) extend the [`RetryableVatValidator`](/source/services/RetryableVatValidator.ts) base class, which provides common retry and timeout logic:
-    - Implements a retry mechanism with exponential backoff and jitter. The default maximum number of retries is 5, and the base delay is 1000ms.
-    - Respects `Retry-After` headers from services when present.
-    - Handles specific HTTP status codes (429, 5xx) and network errors (`TypeError`) as retryable conditions.
-    - Uses a custom `VatValidationError` class to convey error details, including whether an error is retryable.
-    - Includes a `fetchWithTimeout` utility (default 5 seconds timeout) for all outgoing HTTP requests, using an `AbortController` to cancel requests that exceed the timeout.
+  - Implements a retry mechanism with exponential backoff and jitter. The default maximum number of retries is 5, and the base delay is 1000ms.
+  - Respects `Retry-After` headers from services when present.
+  - Handles specific HTTP status codes (429, 5xx) and network errors (`TypeError`) as retryable conditions.
+  - Uses a custom `VatValidationError` class to convey error details, including whether an error is retryable.
+  - Includes a `fetchWithTimeout` utility (default 5 seconds timeout) for all outgoing HTTP requests, using an `AbortController` to cancel requests that exceed the timeout.
 - Express-based REST API with JSON request/response.
 - OpenAPI 3.1 specification for API documentation.
 - Fully tested with Jest and Supertest (>=80% coverage).
@@ -122,14 +122,14 @@ You can also paste the content of this file into the [Swagger Editor](https://ed
 
 - The application loads its configuration from [`config.json`](../config.json) at startup. This file is read by the `readAppConfiguration` function in [`source/models/ConfigurationModel.ts`](/source/models/ConfigurationModel.ts).
 - The `config.json` file specifies:
-    - `port`: The port number on which the Express server will listen (e.g., 3000).
-    - `expressServerOptions`: An object containing various Node.js HTTP server settings that are applied directly to the server instance in `app.ts`. These include:
-        - `keepAliveTimeout`
-        - `headersTimeout`
-        - `timeout`
-        - `requestTimeout`
-        - `maxConnections`
-        - `maxHeadersCount`
+  - `port`: The port number on which the Express server will listen (e.g., 3000).
+  - `expressServerOptions`: An object containing various Node.js HTTP server settings that are applied directly to the server instance in `app.ts`. These include:
+    - `keepAliveTimeout`
+    - `headersTimeout`
+    - `timeout`
+    - `requestTimeout`
+    - `maxConnections`
+    - `maxHeadersCount`
 
 ## Dependencies
 

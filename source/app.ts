@@ -6,17 +6,14 @@ import {
 import createApp from "./server.js";
 import { CHVatValidator } from "./services/CHVatValidator.js";
 import { EUVatValidator } from "./services/EUVatValidator.js";
-import type { RegionValidators } from "./services/VatValidationCoordinator.js";
+import type { VatValidator } from "./services/VatValidationCoordinator.js";
 
 const configurationFile = "config.json";
 
 const configuration: ExpressServerConfiguration =
   readAppConfiguration(configurationFile);
 
-const validators: RegionValidators = {
-  ch: new CHVatValidator(),
-  eu: new EUVatValidator(),
-};
+const validators: VatValidator[] = [new CHVatValidator(), new EUVatValidator()];
 
 const server: Server = createApp(validators).app.listen(
   configuration.port,

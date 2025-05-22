@@ -10,10 +10,10 @@ describe("Validation Middleware", () => {
   let ch: jest.Mocked<VatValidator>;
 
   beforeEach(() => {
-    eu = { validate: jest.fn() };
-    ch = { validate: jest.fn() };
+    eu = { validate: jest.fn(), supportedCountries: [] };
+    ch = { validate: jest.fn(), supportedCountries: [] };
 
-    app = createApp({ eu, ch }).app;
+    app = createApp([eu, ch]).app;
   });
 
   it("returns 400 error and message for invalid payload", async () => {

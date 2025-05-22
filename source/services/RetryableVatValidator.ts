@@ -19,6 +19,7 @@ export class VatValidationError extends Error {
 }
 
 export abstract class RetryableVatValidator implements VatValidator {
+  abstract readonly supportedCountries: string[];
   protected readonly maxRetries = 5;
   protected readonly baseDelay = 1000;
 

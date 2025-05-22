@@ -9,10 +9,9 @@ describe("Vat Validation Controller", () => {
   let ch: jest.Mocked<VatValidator>;
 
   beforeEach(() => {
-    eu = { validate: jest.fn() };
-    ch = { validate: jest.fn() };
-
-    app = createApp({ eu, ch }).app;
+    eu = { validate: jest.fn(), supportedCountries: ["DE"] };
+    ch = { validate: jest.fn(), supportedCountries: ["CH"] };
+    app = createApp([eu, ch]).app;
   });
 
   it("returns 200 and valid message for valid EU VAT number", async () => {

@@ -1,10 +1,6 @@
 export interface VatValidator {
+  readonly supportedCountries: string[];
   validate(countryCode: string, vatNumber: string): Promise<boolean>;
-}
-
-export interface RegionValidators {
-  ch: VatValidator;
-  eu: VatValidator;
 }
 
 export class VatValidationError extends Error {
@@ -17,19 +13,25 @@ export class VatValidationError extends Error {
 }
 
 export class VatValidationCoordinator implements VatValidator {
-  constructor(private readonly validators: RegionValidators) {}
+  public readonly supportedCountries: string[];
+  constructor(private readonly validators: VatValidator[]) {
+    this.supportedCountries = validators.flatMap((v) => v.supportedCountries);
+  }
 
-  private getValidator(countryCode: string): VatValidator {
-    if (countryCode === "CH") {
-      return this.validators.ch;
-    }
-
-    return this.validators.eu;
+  private getValidator(countryCode: string): VatValidator | undefined {
+    return this.validators.find((v) =>
+      v.supportedCountries.includes(countryCode)
+    );
   }
 
   async validate(countryCode: string, vatNumber: string): Promise<boolean> {
     const validator = this.getValidator(countryCode);
-
+    if (!validator) {
+      throw new VatValidationError(
+        `No VAT validator registered for ${countryCode}`,
+        { isRetryable: false }
+      );
+    }
     return validator.validate(countryCode, vatNumber);
   }
 }

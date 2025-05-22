@@ -13,13 +13,15 @@ describe("Vat Validation Coordinator", () => {
   beforeEach(() => {
     eu = {
       validate: jest.fn(),
+      supportedCountries: ["FR", "DE", "AT"],
     } as unknown as jest.Mocked<EUVatValidator>;
 
     ch = {
       validate: jest.fn(),
+      supportedCountries: ["CH"],
     } as unknown as jest.Mocked<CHVatValidator>;
 
-    vatValidationCoordinator = new VatValidationCoordinator({ eu, ch });
+    vatValidationCoordinator = new VatValidationCoordinator([eu, ch]);
   });
 
   afterEach(() => {
