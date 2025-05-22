@@ -20,8 +20,7 @@
     "test": "jest -i",
     "test-ci": "jest -i -no-cache",
     "watch:test": "jest -i --watch",
-    "format": "biome format --write",
-    "lint": "biome lint --write"
+    "check": "biome check --organize-imports-enabled=true --write ."
   },
   "dependencies": {
     "express": "5.1.0",

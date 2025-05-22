@@ -1,3 +1,4 @@
+import path from "node:path";
 import express, {
   json,
   type ErrorRequestHandler,
@@ -5,7 +6,6 @@ import express, {
   type Router,
 } from "express";
 import helmet from "helmet";
-import path from "node:path";
 import responseTime from "response-time";
 import VatValidationRouter from "./routers/VatValidationRouter.js";
 import {

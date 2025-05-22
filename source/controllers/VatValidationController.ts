@@ -1,6 +1,6 @@
+import type { Request, Response } from "express";
 import type { VatValidationType } from "../schemas/VatValidationSchema.js";
 import type { VatValidator } from "../services/VatValidationCoordinator.js";
-import type { Request, Response } from "express";
 
 export default class VatValidationController {
   constructor(private readonly service: VatValidator) {}
