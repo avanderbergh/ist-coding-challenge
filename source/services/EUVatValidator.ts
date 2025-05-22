@@ -22,15 +22,35 @@ export class EUVatValidator extends RetryableVatValidator {
   private readonly url =
     "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number";
 
+  private preprocessVat(countryCode: string, vat: string): string {
+    const cleanedVat = vat.replace(/[^A-Za-z0-9]/g, "");
+
+    if (countryCode === "EL" && cleanedVat.startsWith("GR")) {
+      return cleanedVat.slice(2);
+    }
+
+    return cleanedVat.startsWith(countryCode)
+      ? cleanedVat.slice(countryCode.length)
+      : cleanedVat;
+  }
+
   protected async doValidate(
     countryCode: string,
     vat: string
   ): Promise<boolean> {
-    // Add timeout check and throw an error if it exceeds 5 seconds
+    if (countryCode.length !== 2) {
+      throw new VatValidationError(
+        "Invalid country code for EU VAT validation",
+        { isRetryable: false }
+      );
+    }
+
+    const vatNumber = this.preprocessVat(countryCode, vat);
+
     const response = await this.fetchWithTimeout(this.url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ countryCode, vatNumber: vat.slice(2) }),
+      body: JSON.stringify({ countryCode, vatNumber }),
     });
     const retryAfterHeader = response.headers.get("Retry-After");
     if (!response.ok) {

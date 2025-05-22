@@ -102,8 +102,8 @@ export const companyVatNumbers = [
   },
   {
     countryCode: "ES",
-    company: "Industria de Diseño Textil S.A. (Inditex)",
-    vat: "ES15075062",
+    company: "Amadeus IT Group SA",
+    vat: "ESA84236934",
   },
   { countryCode: "SE", company: "Spotify AB", vat: "SE556703748501" },
   { countryCode: "CH", company: "Nestlé S.A.", vat: "CHE-116.281.710" },
