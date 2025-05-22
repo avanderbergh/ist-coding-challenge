@@ -16,7 +16,7 @@
   "scripts": {
     "build": "npx tsc --project tsconfig.build.json",
     "dev": "tsx watch --env-file=.env source/app.ts",
-    "start": "node --trace-warnings build/app",
+    "start": "node --env-file=.env --trace-warnings build/app",
     "test": "jest -i",
     "test-ci": "jest -i -no-cache",
     "watch:test": "jest -i --watch",
