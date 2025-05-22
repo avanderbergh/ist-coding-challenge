@@ -120,16 +120,27 @@ You can also paste the content of this file into the [Swagger Editor](https://ed
 
 ## Configuration
 
-- The application loads its configuration from [`config.json`](../config.json) at startup. This file is read by the `readAppConfiguration` function in [`source/models/ConfigurationModel.ts`](/source/models/ConfigurationModel.ts).
-- The `config.json` file specifies:
-  - `port`: The port number on which the Express server will listen (e.g., 3000).
-  - `expressServerOptions`: An object containing various Node.js HTTP server settings that are applied directly to the server instance in `app.ts`. These include:
-    - `keepAliveTimeout`
-    - `headersTimeout`
-    - `timeout`
-    - `requestTimeout`
-    - `maxConnections`
-    - `maxHeadersCount`
+- The application loads its configuration from **environment variables** (with sensible defaults).
+- **Setup your local `.env`**:
+  ```bash
+  cp .env.example .env
+  ```
+- **Development**
+  ```bash
+  pnpm dev
+  ```
+- **Production** (Docker/Podman):
+
+  ```bash
+  # build image
+  docker build -t vat-validator .
+
+  # run container with environment variable overrides
+  docker run -d -p 3000:3000 \
+    -e PORT=3000 \
+    -e TIMEOUT=60000 \
+    vat-validator
+  ```
 
 ## Dependencies
 
