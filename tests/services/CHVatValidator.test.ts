@@ -59,7 +59,7 @@ describe("CHVatValidator", () => {
     jest.runAllTimersAsync();
 
     await expect(promise).rejects.toThrow(
-      new VatValidationError("Invalid country code for Swiss VAT validation", {
+      new VatValidationError("Country code DE is not supported", {
         isRetryable: false,
       })
     );

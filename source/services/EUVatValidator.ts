@@ -68,13 +68,6 @@ export class EUVatValidator extends RetryableVatValidator {
     countryCode: string,
     vat: string
   ): Promise<boolean> {
-    if (countryCode.length !== 2) {
-      throw new VatValidationError(
-        "Invalid country code for EU VAT validation",
-        { isRetryable: false }
-      );
-    }
-
     const vatNumber = this.preprocessVat(countryCode, vat);
 
     const response = await this.fetchWithTimeout(this.url, {

@@ -26,16 +26,9 @@ export class CHVatValidator extends RetryableVatValidator {
   }
 
   protected async doValidate(
-    countryCode: string,
+    _countryCode: string,
     vat: string
   ): Promise<boolean> {
-    if (countryCode !== "CH") {
-      throw new VatValidationError(
-        "Invalid country code for Swiss VAT validation",
-        { isRetryable: false }
-      );
-    }
-
     const response = await this.fetchWithTimeout(this.url, {
       method: "POST",
       headers: {
@@ -48,7 +41,6 @@ export class CHVatValidator extends RetryableVatValidator {
     const retryAfterHeader = response.headers.get("Retry-After");
     const text = await response.text();
 
-    // HTTP-level retryable errors
     if (
       response.status === 429 ||
       (response.status >= 500 && response.status < 600)
@@ -59,14 +51,13 @@ export class CHVatValidator extends RetryableVatValidator {
       );
     }
 
-    // SOAP Fault detection
     const faultMatch = text.match(
       /<(?:\w+:)?Fault[^>]*>[\s\S]*?<faultcode[^>]*>([\s\S]*?)<\/(?:\w+:)?faultcode>[\s\S]*?<faultstring[^>]*>([\s\S]*?)<\/(?:\w+:)?faultstring>/i
     );
     if (faultMatch) {
       const faultCode = faultMatch[1].trim();
       const faultMessage = faultMatch[2].trim();
-      // Treat any SOAP fault as retryable unless it's explicitly a client error
+
       const isClientFault = faultCode.includes("Client");
       throw new VatValidationError(
         `SOAP Fault calling Swiss VAT Service: ${faultCode} - ${faultMessage}`,
@@ -74,7 +65,6 @@ export class CHVatValidator extends RetryableVatValidator {
       );
     }
 
-    // Parse result
     if (!text.includes("<ValidateVatNumberResult>")) {
       throw new VatValidationError(
         "Invalid response from Swiss VAT validation service",

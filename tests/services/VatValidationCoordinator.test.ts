@@ -76,4 +76,14 @@ describe("Vat Validation Coordinator", () => {
     ).rejects.toThrow(chError);
     expect(ch.validate).toHaveBeenCalledWith("CH", "CHE123");
   });
+
+  it("should throw VatValidationError for unsupported country code", async () => {
+    await expect(
+      vatValidationCoordinator.validate("XX", "XX123")
+    ).rejects.toThrow(
+      new VatValidationError("No VAT validator registered for XX", {
+        isRetryable: false,
+      })
+    );
+  });
 });

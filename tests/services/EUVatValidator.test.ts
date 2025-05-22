@@ -161,4 +161,52 @@ describe("EUVatValidator", () => {
       })
     );
   });
+
+  it("should preprocess VAT number correctly for EL country code", async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ valid: true }),
+      headers: { get: jest.fn(() => null) },
+    });
+    await validator.validate("EL", "GR123456789");
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: JSON.stringify({ countryCode: "EL", vatNumber: "123456789" }),
+      })
+    );
+  });
+
+  it("should preprocess VAT number by removing country code prefix if present", async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ valid: true }),
+      headers: { get: jest.fn(() => null) },
+    });
+    await validator.validate("DE", "DE123456789"); // VAT number starts with country code
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: JSON.stringify({ countryCode: "DE", vatNumber: "123456789" }), // Expect prefix removed
+      })
+    );
+  });
+
+  it("should preprocess VAT number by returning it as is if it does not start with country code (and not EL/GR case)", async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({ valid: true }),
+      headers: { get: jest.fn(() => null) },
+    });
+    await validator.validate("FR", "123456789"); // VAT number does not start with country code
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        body: JSON.stringify({ countryCode: "FR", vatNumber: "123456789" }), // Expect VAT number to be unchanged
+      })
+    );
+  });
 });

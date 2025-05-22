@@ -4,9 +4,15 @@ import {
 } from "../../source/services/RetryableVatValidator.js";
 
 class TestableValidator extends RetryableVatValidator {
+  public readonly supportedCountries: string[];
   public mockDoValidate: jest.Mock<Promise<boolean>, [string, string]> =
     jest.fn();
   public callCount = 0;
+
+  constructor(supportedCountries: string[] = []) {
+    super();
+    this.supportedCountries = supportedCountries;
+  }
 
   protected async doValidate(
     countryCode: string,
@@ -30,7 +36,7 @@ describe("RetryableVatValidator", () => {
 
   beforeEach(() => {
     jest.useFakeTimers(); // Switch to modern fake timers
-    validator = new TestableValidator();
+    validator = new TestableValidator(["ANY", "DE"]);
   });
 
   afterEach(() => {
@@ -176,6 +182,26 @@ describe("RetryableVatValidator", () => {
       genericError
     );
     expect(validator.mockDoValidate).toHaveBeenCalledTimes(1);
+  });
+
+  it("should throw VatValidationError if country code is not in supportedCountries (length > 2)", async () => {
+    const localValidator = new TestableValidator(["DE", "FR"]);
+    await expect(localValidator.validate("XXX", "XXX123")).rejects.toThrow(
+      new VatValidationError("Country code XXX is not supported", {
+        isRetryable: false,
+      })
+    );
+    expect(localValidator.mockDoValidate).not.toHaveBeenCalled();
+  });
+
+  it("should throw VatValidationError if country code is not in supportedCountries (length == 2)", async () => {
+    const localValidator = new TestableValidator(["DE", "FR"]);
+    await expect(localValidator.validate("XX", "XX123")).rejects.toThrow(
+      new VatValidationError("Country code XX is not supported", {
+        isRetryable: false,
+      })
+    );
+    expect(localValidator.mockDoValidate).not.toHaveBeenCalled();
   });
 
   it("fetchWithTimeout should abort after timeout", async () => {

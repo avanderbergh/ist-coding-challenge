@@ -60,6 +60,13 @@ export abstract class RetryableVatValidator implements VatValidator {
   }
 
   async validate(countryCode: string, vat: string): Promise<boolean> {
+    if (!this.supportedCountries.includes(countryCode)) {
+      throw new VatValidationError(
+        `Country code ${countryCode} is not supported`,
+        { isRetryable: false }
+      );
+    }
+
     let attempt = 0;
     do {
       try {
