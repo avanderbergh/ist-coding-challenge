@@ -27,6 +27,8 @@ jobs:
         with:
           node-version: "22.13"
           cache: "pnpm"
+      - name: Enable corepack
+        run: corepack enable
       - name: Install dependencies
         run: pnpm install
       - name: Run tests
