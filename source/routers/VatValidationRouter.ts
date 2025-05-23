@@ -15,7 +15,7 @@ const router = (service: VatValidator): Router => {
 
   expressRouter.use(ValidationMiddleware);
 
-  expressRouter.post("/", (req, res) => {
+  expressRouter.post("/validate-vat", (req, res) => {
     return vatValidationController.validateVatNumber(req, res);
   });
 

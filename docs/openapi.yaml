@@ -4,10 +4,10 @@ info:
   version: "1.0.0"
   description: "API to validate VAT numbers for EU and Swiss countries"
 servers:
-  - url: "http://localhost:3000"
+  - url: "http://localhost:3000/api/v1"
     description: Local development server
 paths:
-  /:
+  /validate-vat:
     post:
       summary: Validate VAT number
       operationId: validateVatNumber

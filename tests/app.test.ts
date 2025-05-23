@@ -23,8 +23,8 @@ describe("Server Starts", () => {
     server.close();
   });
 
-  it("serves the OpenAPI spec at /api-spec", async () => {
-    const response = await request(app).get("/api-spec");
+  it("serves the OpenAPI spec at /api/v1/api-spec", async () => {
+    const response = await request(app).get("/api/v1/api-spec");
     expect(response.status).toBe(200);
     expect(response.type).toBe("text/yaml");
   });

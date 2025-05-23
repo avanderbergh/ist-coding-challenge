@@ -81,7 +81,7 @@ The server listens on port 3000 by default: http://localhost:3000
 > ⚠️ Make sure the development server is running: `pnpm dev`
 
 ```bash
-curl -X POST http://localhost:3000/ \
+curl -X POST http://localhost:3000/api/v1/validate-vat \
   -H "Content-Type: application/json" \
   -d '{"countryCode":"DE","vat":"DE123456789"}'
 ```
@@ -134,7 +134,7 @@ pnpm dev
 
 ## API Documentation
 
-Full API definition is available in [`docs/openapi.yaml`](./openapi.yaml). The OpenAPI specification is also served at the `/api-spec` route of the running application.
+Full API definition is available in [`docs/openapi.yaml`](./openapi.yaml). The OpenAPI specification is also served at the `/api/v1/api-spec` route of the running application.
 
 You can also paste the content of this file into the [Swagger Editor](https://editor-next.swagger.io/) to view the documentation.
 

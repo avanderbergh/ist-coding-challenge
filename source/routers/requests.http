@@ -6,14 +6,14 @@
 
 ### 1.1 Empty Request Body (400 Bad Request)
 ### Expected: Missing required parameters error
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {}
 
 ### 1.2 Invalid VAT Format for EU (DE) (400 Bad Request)
 ### Expected: Regex validation rejects incorrect VAT
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -23,7 +23,7 @@ Content-Type: application/json
 
 ### 1.3 Invalid VAT Format for Switzerland (CH) (400 Bad Request)
 ### Expected: Regex validation rejects incorrect Swiss VAT
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -35,7 +35,7 @@ Content-Type: application/json
 
 ### 2.1 Valid EU VAT (DE) (200 OK)
 ### Expected: VAT number is valid
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -45,7 +45,7 @@ Content-Type: application/json
 
 ### 2.2 EU VAT from Spain (ES) (200 OK)
 ### Expected: VAT number is valid via VIES API
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -57,7 +57,7 @@ Content-Type: application/json
 
 ### 3.1 Valid Swiss VAT (CHE-116.281.710) (200 OK)
 ### Expected: VAT number is valid
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -69,7 +69,7 @@ Content-Type: application/json
 
 ### 4.1 Country Code ZZ (501)
 ### Expected: Unsupported country code error
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -80,14 +80,14 @@ Content-Type: application/json
 ### 5. OpenAPI & API Spec
 
 ### 5.1 Retrieve OpenAPI Definition
-GET {{baseUrl}}/api-spec
+GET {{baseUrl}}/api/v1/api-spec
 Accept: application/yaml
 
 ### 6. Sample Requests for All Supported Countries
 
 ### 🇦🇹 Austria - Red Bull Media House GmbH
 
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -96,7 +96,7 @@ Content-Type: application/json
 }
 
 ### 🇧🇪 Belgium - Anheuser-Busch InBev SA/NV
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -105,7 +105,7 @@ Content-Type: application/json
 }
 
 ### 🇧🇬 Bulgaria - Kaufland Bulgaria EOOD & Co.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -114,7 +114,7 @@ Content-Type: application/json
 }
 
 ### 🇭🇷 Croatia - American Chamber of Commerce in Croatia
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -123,7 +123,7 @@ Content-Type: application/json
 }
 
 ### 🇨🇾 Cyprus - Wargaming Group Ltd.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -132,7 +132,7 @@ Content-Type: application/json
 }
 
 ### 🇨🇿 Czech Republic - Škoda Auto a.s.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -141,7 +141,7 @@ Content-Type: application/json
 }
 
 ### 🇩🇰 Denmark - Maersk A/S
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -150,7 +150,7 @@ Content-Type: application/json
 }
 
 ### 🇪🇪 Estonia - Bolt Technology OÜ
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -159,7 +159,7 @@ Content-Type: application/json
 }
 
 ### 🇫🇮 Finland - Nokia Oyj
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -168,7 +168,7 @@ Content-Type: application/json
 }
 
 ### 🇫🇷 France - TotalEnergies SE
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -177,7 +177,7 @@ Content-Type: application/json
 }
 
 ### 🇩🇪 Germany - Siemens AG
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -186,7 +186,7 @@ Content-Type: application/json
 }
 
 ### 🇬🇷 Greece - OPAP S.A.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -195,7 +195,7 @@ Content-Type: application/json
 }
 
 ### 🇭🇺 Hungary - MOL Hungarian Oil & Gas Plc.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -204,7 +204,7 @@ Content-Type: application/json
 }
 
 ### 🇮🇪 Ireland - Ryanair DAC
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -213,7 +213,7 @@ Content-Type: application/json
 }
 
 ### 🇮🇹 Italy - Ferrari S.p.A.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -222,7 +222,7 @@ Content-Type: application/json
 }
 
 ### 🇱🇻 Latvia - airBaltic Corporation AS
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -231,7 +231,7 @@ Content-Type: application/json
 }
 
 ### 🇱🇹 Lithuania - Thermo Fisher Scientific Baltics UAB
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -240,7 +240,7 @@ Content-Type: application/json
 }
 
 ### 🇱🇺 Luxembourg - ArcelorMittal Europe SA
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -249,7 +249,7 @@ Content-Type: application/json
 }
 
 ### 🇲🇹 Malta - Betsson Services Ltd.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -258,7 +258,7 @@ Content-Type: application/json
 }
 
 ### 🇳🇱 Netherlands - ASML Netherlands B.V.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -267,7 +267,7 @@ Content-Type: application/json
 }
 
 ### 🇵🇱 Poland - CD Projekt S.A.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -276,7 +276,7 @@ Content-Type: application/json
 }
 
 ### 🇵🇹 Portugal - Jerónimo Martins SGPS S.A.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -285,7 +285,7 @@ Content-Type: application/json
 }
 
 ### 🇷🇴 Romania - Bitdefender SRL
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -294,7 +294,7 @@ Content-Type: application/json
 }
 
 ### 🇸🇰 Slovakia - ESET, spol. s r.o.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -303,7 +303,7 @@ Content-Type: application/json
 }
 
 ### 🇸🇮 Slovenia - Krka d.d. Novo mesto
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -312,7 +312,7 @@ Content-Type: application/json
 }
 
 ### 🇪🇸 Spain - Amadeus IT Group SA
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -321,7 +321,7 @@ Content-Type: application/json
 }
 
 ### 🇸🇪 Sweden - Spotify AB
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {
@@ -330,7 +330,7 @@ Content-Type: application/json
 }
 
 ### 🇨🇭 Switzerland - Nestlé S.A.
-POST {{baseUrl}}/
+POST {{baseUrl}}/api/v1/validate-vat
 Content-Type: application/json
 
 {

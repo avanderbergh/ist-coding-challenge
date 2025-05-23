@@ -17,7 +17,10 @@ describe("Validation Middleware", () => {
   });
 
   it("returns 400 error and message for invalid payload", async () => {
-    const { body } = await request(app).post("/").send({}).expect(400);
+    const { body } = await request(app)
+      .post("/api/v1/validate-vat")
+      .send({})
+      .expect(400);
 
     expect(body.code).toBe(400);
     expect(body.message).toBe("'countryCode' is required, 'vat' is required");
@@ -28,7 +31,7 @@ describe("Validation Middleware", () => {
 
   it("returns 501 error and message for unsupported country code", async () => {
     const { body } = await request(app)
-      .post("/")
+      .post("/api/v1/validate-vat")
       .send({ countryCode: "XX", vat: "123456789" })
       .expect(501);
 
@@ -41,7 +44,7 @@ describe("Validation Middleware", () => {
 
   it("returns 400 error and message for invalid VAT number", async () => {
     const { body } = await request(app)
-      .post("/")
+      .post("/api/v1/validate-vat")
       .send({ countryCode: "DE", vat: "123" })
       .expect(400);
 

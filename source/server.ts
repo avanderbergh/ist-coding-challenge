@@ -32,14 +32,14 @@ export default function createApp(validators: VatValidator[]): {
 
   app.use(responseTime({ suffix: true }));
 
-  app.get("/api-spec", (_req, res) => {
+  app.get("/api/v1/api-spec", (_req, res) => {
     res.sendFile(path.resolve(process.cwd(), "docs", "openapi.yaml"));
   });
 
   const vatValidationService = new VatValidationCoordinator(validators);
 
   const router = VatValidationRouter(vatValidationService);
-  app.use("/", router);
+  app.use("/api/v1", router);
 
   app.use(GlobalErrorHandler);
   return { app, router };
