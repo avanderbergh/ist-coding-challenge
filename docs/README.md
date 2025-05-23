@@ -78,6 +78,7 @@ pnpm start
 The server listens on port 3000 by default: http://localhost:3000
 
 ### Example Request
+> ⚠️ Make sure the development server is running: `pnpm dev`
 
 ```bash
 curl -X POST http://localhost:3000/ \
@@ -111,6 +112,25 @@ curl -X POST http://localhost:3000/ \
   "message": "Unsupported country code XX"
 }
 ```
+
+### Manual Testing with VS Code REST Client Extension
+
+1. 🟢 Start the development server:
+
+```bash
+pnpm dev
+```
+
+2. 🔍 Open the REST Client request file:
+
+   - Locate and open [`source/routers/requests.http`](/source/routers/requests.http).
+
+3. 📦 Install the [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) if not already installed.
+
+4. 🚀 Send requests:
+
+   - Click the **Send Request** link above any HTTP request in the file.
+   - Inspect the response in the VS Code response pane.
 
 ## API Documentation
 

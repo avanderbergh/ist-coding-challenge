@@ -1,11 +1,19 @@
-### Empty body
-POST http://localhost:3000/
+@baseUrl = http://localhost:3000
+
+### VAT Validation Service - REST Client Examples
+
+### 1. Request Validation (Regex)
+
+### 1.1 Empty Request Body (400 Bad Request)
+### Expected: Missing required parameters error
+POST {{baseUrl}}/
 Content-Type: application/json
 
 {}
 
-### Invalid EU vat number
-POST http://localhost:3000/
+### 1.2 Invalid VAT Format for EU (DE) (400 Bad Request)
+### Expected: Regex validation rejects incorrect VAT
+POST {{baseUrl}}/
 Content-Type: application/json
 
 {
@@ -13,17 +21,9 @@ Content-Type: application/json
   "vat": "DE111111"
 }
 
-### Valid EU vat number
-POST http://localhost:3000/
-Content-Type: application/json
-
-{
-  "countryCode": "DE",
-  "vat": "DE129274202"
-}
-
-### Invalid Swiss VAT number
-POST http://localhost:3000/
+### 1.3 Invalid VAT Format for Switzerland (CH) (400 Bad Request)
+### Expected: Regex validation rejects incorrect Swiss VAT
+POST {{baseUrl}}/
 Content-Type: application/json
 
 {
@@ -31,8 +31,33 @@ Content-Type: application/json
   "vat": "CHE-123456789"
 }
 
-### Valid Swiss VAT number
-POST http://localhost:3000/
+### 2. EU Service (VIES)
+
+### 2.1 Valid EU VAT (DE) (200 OK)
+### Expected: VAT number is valid
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "EE",
+  "vat": "EE102090374"
+}
+
+### 2.2 EU VAT from Spain (ES) (200 OK)
+### Expected: VAT number is valid via VIES API
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "ES",
+  "vat": "ESA15075062"
+}
+
+### 3. Switzerland Service (UID SOAP)
+
+### 3.1 Valid Swiss VAT (CHE-116.281.710) (200 OK)
+### Expected: VAT number is valid
+POST {{baseUrl}}/
 Content-Type: application/json
 
 {
@@ -40,8 +65,11 @@ Content-Type: application/json
   "vat": "CHE-116.281.710"
 }
 
-### Invalid country code
-POST http://localhost:3000/
+### 4. Unsupported Country Code (501 Not Implemented)
+
+### 4.1 Country Code ZZ (501)
+### Expected: Unsupported country code error
+POST {{baseUrl}}/
 Content-Type: application/json
 
 {
@@ -49,29 +77,263 @@ Content-Type: application/json
   "vat": "DE123456789"
 }
 
-### Test with VIES API
-POST https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number
+### 5. OpenAPI & API Spec
+
+### 5.1 Retrieve OpenAPI Definition
+GET {{baseUrl}}/api-spec
+Accept: application/yaml
+
+### 6. Sample Requests for All Supported Countries
+
+### 🇦🇹 Austria - Red Bull Media House GmbH
+
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "AT",
+  "vat": "ATU63611700"
+}
+
+### 🇧🇪 Belgium - Anheuser-Busch InBev SA/NV
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "BE",
+  "vat": "BE0417497106"
+}
+
+### 🇧🇬 Bulgaria - Kaufland Bulgaria EOOD & Co.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "BG",
+  "vat": "BG131129282"
+}
+
+### 🇭🇷 Croatia - American Chamber of Commerce in Croatia
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "HR",
+  "vat": "HR91127208369"
+}
+
+### 🇨🇾 Cyprus - Wargaming Group Ltd.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "CY",
+  "vat": "CY99000230P"
+}
+
+### 🇨🇿 Czech Republic - Škoda Auto a.s.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "CZ",
+  "vat": "CZ00177041"
+}
+
+### 🇩🇰 Denmark - Maersk A/S
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "DK",
+  "vat": "DK53139655"
+}
+
+### 🇪🇪 Estonia - Bolt Technology OÜ
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "EE",
+  "vat": "EE102090374"
+}
+
+### 🇫🇮 Finland - Nokia Oyj
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "FI",
+  "vat": "FI01120389"
+}
+
+### 🇫🇷 France - TotalEnergies SE
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "FR",
+  "vat": "FR59542051180"
+}
+
+### 🇩🇪 Germany - Siemens AG
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "DE",
+  "vat": "DE129274202"
+}
+
+### 🇬🇷 Greece - OPAP S.A.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "EL",
+  "vat": "EL090027346"
+}
+
+### 🇭🇺 Hungary - MOL Hungarian Oil & Gas Plc.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "HU",
+  "vat": "HU17781774"
+}
+
+### 🇮🇪 Ireland - Ryanair DAC
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "IE",
+  "vat": "IE4749148U"
+}
+
+### 🇮🇹 Italy - Ferrari S.p.A.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "IT",
+  "vat": "IT00159560366"
+}
+
+### 🇱🇻 Latvia - airBaltic Corporation AS
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "LV",
+  "vat": "LV40003245752"
+}
+
+### 🇱🇹 Lithuania - Thermo Fisher Scientific Baltics UAB
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "LT",
+  "vat": "LT223513811"
+}
+
+### 🇱🇺 Luxembourg - ArcelorMittal Europe SA
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "LU",
+  "vat": "LU16805119"
+}
+
+### 🇲🇹 Malta - Betsson Services Ltd.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "MT",
+  "vat": "MT18852233"
+}
+
+### 🇳🇱 Netherlands - ASML Netherlands B.V.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "NL",
+  "vat": "NL803441526B01"
+}
+
+### 🇵🇱 Poland - CD Projekt S.A.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "PL",
+  "vat": "PL7342867148"
+}
+
+### 🇵🇹 Portugal - Jerónimo Martins SGPS S.A.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "PT",
+  "vat": "PT500100144"
+}
+
+### 🇷🇴 Romania - Bitdefender SRL
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "RO",
+  "vat": "RO18189442"
+}
+
+### 🇸🇰 Slovakia - ESET, spol. s r.o.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "SK",
+  "vat": "SK2020317068"
+}
+
+### 🇸🇮 Slovenia - Krka d.d. Novo mesto
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "SI",
+  "vat": "SI82646716"
+}
+
+### 🇪🇸 Spain - Amadeus IT Group SA
+POST {{baseUrl}}/
 Content-Type: application/json
 
 {
   "countryCode": "ES",
-  "vatNumber": "A15075062"
+  "vat": "ESA84236934"
 }
 
-### Check Member States
-GET https://ec.europa.eu/taxation_customs/vies/rest-api/check-status
+### 🇸🇪 Sweden - Spotify AB
+POST {{baseUrl}}/
+Content-Type: application/json
 
-### Check Swiss VAT number
-POST https://www.uid-wse.admin.ch/V5.0/PublicServices.svc
-Content-Type: text/xml; charset=utf-8
-SOAPAction: "http://www.uid.admin.ch/xmlns/uid-wse/IPublicServices/ValidateVatNumber"
+{
+  "countryCode": "SE",
+  "vat": "SE556703748501"
+}
 
-<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
-               xmlns:uid="http://www.uid.admin.ch/xmlns/uid-wse">
-  <soap:Body>
-    <uid:ValidateVatNumber>
-      <uid:vatNumber>CHE-116.281.710</uid:vatNumber>
-    </uid:ValidateVatNumber>
-  </soap:Body>
-</soap:Envelope>
+### 🇨🇭 Switzerland - Nestlé S.A.
+POST {{baseUrl}}/
+Content-Type: application/json
+
+{
+  "countryCode": "CH",
+  "vat": "CHE-116.281.710"
+}

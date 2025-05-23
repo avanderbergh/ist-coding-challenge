@@ -5,7 +5,7 @@ import { CHVatValidator } from "../source/services/CHVatValidator.js";
 import { EUVatValidator } from "../source/services/EUVatValidator.js";
 import { companyVatNumbers } from "./data/vat-numbers.js";
 
-describe.skip("Check real vat numbers for all countries", () => {
+describe("Check real vat numbers for all countries", () => {
   let app: Express;
 
   beforeAll(() => {
@@ -35,7 +35,6 @@ describe.skip("Check real vat numbers for all countries", () => {
   });
 
   afterAll(async () => {
-    // Add any cleanup logic here if needed in the future
-    await new Promise((resolve) => setTimeout(resolve, 0)); // Ensure any pending operations complete
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 });
