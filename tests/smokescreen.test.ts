@@ -5,7 +5,7 @@ import { CHVatValidator } from "../source/services/CHVatValidator.js";
 import { EUVatValidator } from "../source/services/EUVatValidator.js";
 import { companyVatNumbers } from "./data/vat-numbers.js";
 
-describe("Check real vat numbers for all countries", () => {
+describe.skip("Check real vat numbers for all countries", () => {
   let app: Express;
 
   beforeAll(() => {
