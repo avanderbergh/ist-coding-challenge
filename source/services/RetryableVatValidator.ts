@@ -31,7 +31,7 @@ export abstract class RetryableVatValidator implements VatValidator {
   async fetchWithTimeout(
     input: string | URL | Request,
     init?: RequestInit,
-    timeout = 5000
+    timeout = 10000
   ): Promise<Response> {
     const controller = new AbortController();
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -73,7 +73,7 @@ export abstract class RetryableVatValidator implements VatValidator {
         return await this.doValidate(countryCode, vat);
       } catch (error: unknown) {
         let shouldRetry = false;
-        let calculatedDelay = this.baseDelay * 2 ** attempt;
+        let calculatedDelay = this.baseDelay * 2 ** attempt * Math.random(); // Exponential backoff with full jitter
 
         if (error instanceof VatValidationError) {
           const {
@@ -102,10 +102,6 @@ export abstract class RetryableVatValidator implements VatValidator {
         }
 
         if (attempt < this.maxRetries && shouldRetry) {
-          if (calculatedDelay > 0) {
-            const jitter = Math.floor(Math.random() * 10) + 1;
-            calculatedDelay += jitter;
-          }
           await new Promise((res) => setTimeout(res, calculatedDelay));
         } else {
           throw error;
