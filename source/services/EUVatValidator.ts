@@ -19,7 +19,7 @@ const VatApiResponseSchema = z.union([
 ]);
 
 export class EUVatValidator extends RetryableVatValidator {
-  public readonly supportedCountries = [
+  public readonly supportedCountries: ReadonlySet<string> = new Set([
     "AT",
     "BE",
     "BG",
@@ -47,7 +47,7 @@ export class EUVatValidator extends RetryableVatValidator {
     "SE",
     "SI",
     "SK",
-  ];
+  ]);
 
   private readonly url =
     "https://ec.europa.eu/taxation_customs/vies/rest-api/check-vat-number";

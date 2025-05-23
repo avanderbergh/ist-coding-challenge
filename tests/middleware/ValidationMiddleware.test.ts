@@ -10,8 +10,8 @@ describe("Validation Middleware", () => {
   let ch: jest.Mocked<VatValidator>;
 
   beforeEach(() => {
-    eu = { validate: jest.fn(), supportedCountries: [] };
-    ch = { validate: jest.fn(), supportedCountries: [] };
+    eu = { validate: jest.fn(), supportedCountries: new Set() };
+    ch = { validate: jest.fn(), supportedCountries: new Set() };
 
     app = createApp([eu, ch]).app;
   });

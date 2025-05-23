@@ -19,7 +19,7 @@ export class VatValidationError extends Error {
 }
 
 export abstract class RetryableVatValidator implements VatValidator {
-  abstract readonly supportedCountries: string[];
+  abstract readonly supportedCountries: ReadonlySet<string>;
   protected readonly maxRetries = 5;
   protected readonly baseDelay = 1000;
 
@@ -60,7 +60,7 @@ export abstract class RetryableVatValidator implements VatValidator {
   }
 
   async validate(countryCode: string, vat: string): Promise<boolean> {
-    if (!this.supportedCountries.includes(countryCode)) {
+    if (!this.supportedCountries.has(countryCode)) {
       throw new VatValidationError(
         `Country code ${countryCode} is not supported`,
         { isRetryable: false }

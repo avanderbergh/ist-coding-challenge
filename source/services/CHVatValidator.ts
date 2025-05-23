@@ -4,7 +4,7 @@ import {
 } from "./RetryableVatValidator.js";
 
 export class CHVatValidator extends RetryableVatValidator {
-  public readonly supportedCountries = ["CH"];
+  public readonly supportedCountries: ReadonlySet<string> = new Set(["CH"]);
   private readonly url = "https://www.uid-wse.admin.ch/V5.0/PublicServices.svc";
 
   private generateSoapEnvelope(uid: string) {
