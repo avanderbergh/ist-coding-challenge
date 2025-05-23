@@ -32,7 +32,7 @@ export default function createApp(validators: VatValidator[]): {
 
   app.use(responseTime({ suffix: true }));
 
-  app.use("/healthz", (_req, res) => {
+  app.get("/healthz", (_req, res) => {
     res.status(200).json({
       status: "ok",
       uptime: process.uptime(),
