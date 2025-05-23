@@ -35,7 +35,6 @@ describe.skip("Check real vat numbers for all countries", () => {
   });
 
   afterAll(async () => {
-    // Add any cleanup logic here if needed in the future
-    await new Promise((resolve) => setTimeout(resolve, 0)); // Ensure any pending operations complete
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 });
