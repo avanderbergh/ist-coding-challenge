@@ -73,7 +73,10 @@ export abstract class RetryableVatValidator implements VatValidator {
         return await this.doValidate(countryCode, vat);
       } catch (error: unknown) {
         let shouldRetry = false;
-        let calculatedDelay = this.baseDelay * 2 ** attempt * Math.random(); // Exponential backoff with full jitter
+        let calculatedDelay = Math.max(
+          this.baseDelay * 2 ** attempt * Math.random(),
+          this.baseDelay
+        ); // Exponential backoff with full jitter and minimum delay
 
         if (error instanceof VatValidationError) {
           const {
