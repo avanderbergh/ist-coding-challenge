@@ -9,8 +9,8 @@ describe("Vat Validation Controller", () => {
   let ch: jest.Mocked<VatValidator>;
 
   beforeEach(() => {
-    eu = { validate: jest.fn(), supportedCountries: ["DE"] };
-    ch = { validate: jest.fn(), supportedCountries: ["CH"] };
+    eu = { validate: jest.fn(), supportedCountries: new Set(["DE"]) };
+    ch = { validate: jest.fn(), supportedCountries: new Set(["CH"]) };
     app = createApp([eu, ch]).app;
   });
 

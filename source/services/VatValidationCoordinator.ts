@@ -1,5 +1,5 @@
 export interface VatValidator {
-  readonly supportedCountries: string[];
+  readonly supportedCountries: ReadonlySet<string>;
   validate(countryCode: string, vatNumber: string): Promise<boolean>;
 }
 
@@ -13,25 +13,32 @@ export class VatValidationError extends Error {
 }
 
 export class VatValidationCoordinator implements VatValidator {
-  public readonly supportedCountries: string[];
-  constructor(private readonly validators: VatValidator[]) {
-    this.supportedCountries = validators.flatMap((v) => v.supportedCountries);
-  }
+  public readonly supportedCountries: ReadonlySet<string>;
+  private countryCodeToValidator: Map<string, VatValidator> = new Map();
 
-  private getValidator(countryCode: string): VatValidator | undefined {
-    return this.validators.find((v) =>
-      v.supportedCountries.includes(countryCode)
-    );
+  constructor(validators: VatValidator[]) {
+    const countrySet = new Set<string>();
+    for (const validator of validators) {
+      for (const countryCode of validator.supportedCountries) {
+        const code = countryCode.toUpperCase();
+        countrySet.add(code);
+        if (this.countryCodeToValidator.has(code)) {
+          throw new Error(`Duplicate VAT validator for ${code}`);
+        }
+        this.countryCodeToValidator.set(code, validator);
+      }
+    }
+    this.supportedCountries = countrySet;
   }
 
   async validate(countryCode: string, vatNumber: string): Promise<boolean> {
-    const validator = this.getValidator(countryCode);
+    const code = countryCode.toUpperCase();
+    const validator = this.countryCodeToValidator.get(code);
     if (!validator) {
-      throw new VatValidationError(
-        `No VAT validator registered for ${countryCode}`,
-        { isRetryable: false }
-      );
+      throw new VatValidationError(`No VAT validator registered for ${code}`, {
+        isRetryable: false,
+      });
     }
-    return validator.validate(countryCode, vatNumber);
+    return validator.validate(code, vatNumber);
   }
 }

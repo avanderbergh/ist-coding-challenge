@@ -4,6 +4,7 @@ import {
   VatValidationCoordinator,
   VatValidationError,
 } from "../../source/services/VatValidationCoordinator.js";
+import type { VatValidator } from "../../source/services/VatValidationCoordinator.js";
 
 describe("Vat Validation Coordinator", () => {
   let eu: jest.Mocked<EUVatValidator>;
@@ -13,12 +14,12 @@ describe("Vat Validation Coordinator", () => {
   beforeEach(() => {
     eu = {
       validate: jest.fn(),
-      supportedCountries: ["FR", "DE", "AT"],
+      supportedCountries: new Set(["FR", "DE", "AT"]),
     } as unknown as jest.Mocked<EUVatValidator>;
 
     ch = {
       validate: jest.fn(),
-      supportedCountries: ["CH"],
+      supportedCountries: new Set(["CH"]),
     } as unknown as jest.Mocked<CHVatValidator>;
 
     vatValidationCoordinator = new VatValidationCoordinator([eu, ch]);
@@ -84,6 +85,20 @@ describe("Vat Validation Coordinator", () => {
       new VatValidationError("No VAT validator registered for XX", {
         isRetryable: false,
       })
+    );
+  });
+
+  it("throws Error when two validators support the same country code", () => {
+    const v1: VatValidator = {
+      supportedCountries: new Set(["DE"]),
+      validate: jest.fn(),
+    };
+    const v2: VatValidator = {
+      supportedCountries: new Set(["DE"]),
+      validate: jest.fn(),
+    };
+    expect(() => new VatValidationCoordinator([v1, v2])).toThrow(
+      "Duplicate VAT validator for DE"
     );
   });
 });
