@@ -18,22 +18,17 @@ export class VatValidationCoordinator implements VatValidator {
 
   constructor(validators: VatValidator[]) {
     const countrySet = new Set<string>();
-    for (const v of validators) {
-      for (const c of v.supportedCountries) {
-        countrySet.add(c.toUpperCase());
-      }
-    }
-    this.supportedCountries = countrySet;
-
     for (const validator of validators) {
       for (const countryCode of validator.supportedCountries) {
         const code = countryCode.toUpperCase();
+        countrySet.add(code);
         if (this.countryCodeToValidator.has(code)) {
           throw new Error(`Duplicate VAT validator for ${code}`);
         }
         this.countryCodeToValidator.set(code, validator);
       }
     }
+    this.supportedCountries = countrySet;
   }
 
   async validate(countryCode: string, vatNumber: string): Promise<boolean> {
