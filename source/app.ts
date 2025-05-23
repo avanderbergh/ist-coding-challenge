@@ -8,17 +8,14 @@ import { CHVatValidator } from "./services/CHVatValidator.js";
 import { EUVatValidator } from "./services/EUVatValidator.js";
 import type { VatValidator } from "./services/VatValidationCoordinator.js";
 
-const configurationFile = "config.json";
-
-const configuration: ExpressServerConfiguration =
-  readAppConfiguration(configurationFile);
+const configuration: ExpressServerConfiguration = readAppConfiguration();
 
 const validators: VatValidator[] = [new CHVatValidator(), new EUVatValidator()];
 
 const server: Server = createApp(validators).app.listen(
   configuration.port,
   () => {
-    console.log({ description: "START" });
+    console.log({ description: `STARTING ON PORT ${configuration.port}` });
   }
 );
 
