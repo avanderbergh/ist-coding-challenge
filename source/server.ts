@@ -32,6 +32,14 @@ export default function createApp(validators: VatValidator[]): {
 
   app.use(responseTime({ suffix: true }));
 
+  app.use("/healthz", (_req, res) => {
+    res.status(200).json({
+      status: "ok",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   app.get("/api/v1/api-spec", (_req, res) => {
     res.sendFile(path.resolve(process.cwd(), "docs", "openapi.yaml"));
   });
@@ -40,6 +48,12 @@ export default function createApp(validators: VatValidator[]): {
 
   const router = VatValidationRouter(vatValidationService);
   app.use("/api/v1", router);
+
+  app.get("/readyz", (_req, res) => {
+    res.status(200).json({
+      status: "ok",
+    });
+  });
 
   app.use(GlobalErrorHandler);
   return { app, router };
