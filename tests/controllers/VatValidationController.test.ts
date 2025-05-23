@@ -21,7 +21,7 @@ describe("Vat Validation Controller", () => {
     eu.validate.mockResolvedValueOnce(true);
 
     const { body } = await request(app)
-      .post("/")
+      .post("/api/v1/validate-vat")
       .send({ countryCode, vat })
       .expect(200);
 
@@ -40,7 +40,7 @@ describe("Vat Validation Controller", () => {
     eu.validate.mockResolvedValueOnce(false);
 
     const { body } = await request(app)
-      .post("/")
+      .post("/api/v1/validate-vat")
       .send({ countryCode, vat })
       .expect(200);
 
@@ -60,7 +60,7 @@ describe("Vat Validation Controller", () => {
     eu.validate.mockRejectedValueOnce(new Error(errorMessage));
 
     const { body } = await request(app)
-      .post("/")
+      .post("/api/v1/validate-vat")
       .send({ countryCode, vat })
       .expect(500);
 
@@ -77,7 +77,7 @@ describe("Vat Validation Controller", () => {
     eu.validate.mockRejectedValueOnce(new Error());
 
     const { body } = await request(app)
-      .post("/")
+      .post("/api/v1/validate-vat")
       .send({ countryCode, vat })
       .expect(500);
 

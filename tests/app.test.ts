@@ -23,9 +23,23 @@ describe("Server Starts", () => {
     server.close();
   });
 
-  it("serves the OpenAPI spec at /api-spec", async () => {
-    const response = await request(app).get("/api-spec");
+  it("serves the OpenAPI spec at /api/v1/api-spec", async () => {
+    const response = await request(app).get("/api/v1/api-spec");
     expect(response.status).toBe(200);
     expect(response.type).toBe("text/yaml");
+  });
+
+  it("responds on /readyz", async () => {
+    const response = await request(app).get("/readyz");
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ status: "ok" });
+  });
+
+  it("responds on /healthz", async () => {
+    const response = await request(app).get("/healthz");
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("status", "ok");
+    expect(typeof response.body.uptime).toBe("number");
+    expect(typeof response.body.timestamp).toBe("string");
   });
 });
